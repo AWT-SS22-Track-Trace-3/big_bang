@@ -13,7 +13,7 @@ const IncidentGenerator = () => {
 
         return {
             product: incidentDef.product,
-            type: incidentDef.type,
+            type: incidentDef.id,
             name: incidentDef.name,
             description: incidentDef.description,
             chain_step: chainStep,

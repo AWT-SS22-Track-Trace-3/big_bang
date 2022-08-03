@@ -101,7 +101,7 @@ const UserGenerator = () => {
     const authorities = []
 
     const random_manufacturers = ["Re:Med Pharmaceutical", "Fortunas Medical", "Get.Health Corporation", "Victorias Pharma Corp."]
-    const random_wholesalers = ["Re:Sales Corporation", "Metro Medical", "BIG Wholesales Corp.", "Brava Warehouses", "Keto Sales Medical"]
+    const random_wholesalers = ["Re:Sales Corporation", "Metro Medical", "BIG Wholesales Corp.", "Brava Warehouses", "Keto Sales Medical", "Arlas Resales", "Feeney Inc.", "Cummerata Group", "Reynolds Wholesales"]
     const random_repackagers = ["RE:Pack Services Corp.", "Metro Medical Packaging", "Arlas Postage International"]
     const random_dispensers = ["Alios Hospitals International", "Relive Clinics Group", "Brawn Pharmacies Intl.", "Centurion International", "Drike Pharmacy Corp.", "Ex Ferris Medical Group"]
 
@@ -150,8 +150,34 @@ const UserGenerator = () => {
         return result;
     }
 
+    const getGenericsPerCountry = (companies, continents = []) => {
+        let result = []
+
+        for (let continent of continents) {
+            for (let company of companies) {
+                let countryList = helpers.getCountries(continent);
+                countryList = helpers.getRandomNumberSequence(5, countryList.length).map(x => countryList[x]);
+
+                console.log(countryList)
+
+                for (let country of countryList) {
+                    let companyName = `${company} ${country.alpha2}`;
+                    let address = helpers.genericAddress(country.alpha2, (continent == "EU" ? "EU" : "US"));
+
+                    result.push({
+                        company: companyName,
+                        address,
+                        username: getUsername(company),
+                        password: "$2b$12$eqc6X3z2mvXtEoWhFTMpSupUoQ.Gm9MU2zOZUAzvjVwzjIbSuHEuu"
+                    })
+                }
+            }
+        }
+        return result;
+    }
+
     const generateWholesalers = (includedContinents = []) => {
-        let result = getGenerics(random_wholesalers, includedContinents);
+        let result = getGenericsPerCountry(random_wholesalers, includedContinents);
 
         return result.map(x => {
             x.type = "wholesaler";
@@ -162,7 +188,7 @@ const UserGenerator = () => {
     }
 
     const generateRepackagers = (includedContinents = []) => {
-        let result = getGenerics(random_repackagers, includedContinents);
+        let result = getGenericsPerCountry(random_repackagers, includedContinents);
 
         return result.map(x => {
             x.type = "repackager";

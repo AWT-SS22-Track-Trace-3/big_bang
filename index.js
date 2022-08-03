@@ -11,9 +11,10 @@ import productSchema from "./schemas/product";
 import incidentSchema from "./schemas/incident";
 
 initialiser();
-const productsPerBatch = 5;
-const batches = 30;
-const continents = ["EU", "NA", "SA", "AS", "AF"];
+await dbImporter.clear();
+const productsPerBatch = 10;
+const batches = 50;
+const continents = ["EU", "NA", "AS"];
 
 // Generate Users
 let userGenerator = UserGenerator();
@@ -40,8 +41,6 @@ for (let i = 0; i < batches; i++) {
 
         let generatedChain = productGenerator.generateSupplyChain(manufacturer, users.wholesalers, users.repackagers, dispenser, users.postalServices, incidentDef);
 
-        console.log(generatedChain.chain[generatedChain.chain.length - 1])
-
         product["supply_chain"] = generatedChain.chain;
         product["marketed_region"] = dispenser.address.country;
         product["batch_number"] = batchNumber;
@@ -66,9 +65,11 @@ for (let key in users) {
     userArr = userArr.concat(users[key]);
 }
 
-dbImporter.bulkInsert(userArr, userSchema);
-dbImporter.bulkInsert(products, productSchema);
-dbImporter.bulkInsert(incidents, incidentSchema);
+console.log(products.length);
+
+await dbImporter.bulkInsertUsers(userArr);
+await dbImporter.bulkInsertProducts(products);
+await dbImporter.bulkInsertIncidents(incidents);
 
 //fs.writeFileSync("./output/users.json", JSON.stringify(users), err => console.log(err));
 //fs.writeFileSync("./output/products.json", JSON.stringify(products), err => console.log(err));

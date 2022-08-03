@@ -88,11 +88,8 @@ class ProductGenerator {
                 builder.addOwnership(owner)
 
         }
-        console.log(!incident, chainOwners[chainOwners.length - 1].type === "dispenser")
 
         if (!incident && chainOwners[chainOwners.length - 1].type === "dispenser") {
-
-            console.log("adding termination");
             builder.addTermination({
                 username: chainOwners[chainOwners.length - 1].username,
                 transaction_date: dateGenerator.getNextDate()

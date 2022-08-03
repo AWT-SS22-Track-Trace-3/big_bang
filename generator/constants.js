@@ -60,7 +60,7 @@ const IncidentTypes = {
     generalInconsistency: {
         id: "reported_inconsistency",
         name: "Reported General Inconsistency",
-        descriptions: "General inconsistency in transaction data.",
+        description: "General inconsistency in transaction data.",
         intercept: "any",
         adjustments: []
     }

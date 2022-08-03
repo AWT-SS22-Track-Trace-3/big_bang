@@ -35,7 +35,7 @@ const getCountries = (continent = undefined) => {
 }
 
 const randomBool = () => {
-    return Math.random() > 0.5;
+    return Math.random() > 0.4;
 }
 
 const umlautMap = {
