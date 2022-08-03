@@ -19,10 +19,10 @@ const getCountries = (continent = undefined) => {
     if (continent) {
         country_list = country_keys.map(x => {
             let country = countries[x];
-            country.alpha2 = x;
+            country["alpha2"] = x;
 
             return country;
-        }).filter(x => x.continent === continent);
+        }).filter(item => item.continent === continent);
     } else {
         country_list = country_keys.map(x => {
             let country = countries[x];
@@ -31,11 +31,59 @@ const getCountries = (continent = undefined) => {
             return country;
         });
     }
-
     return country_list;
+}
+
+const randomBool = () => {
+    return Math.random() > 0.5;
+}
+
+const umlautMap = {
+    '\u00fc': 'ue',
+    '\u00e4': 'ae',
+    '\u00f6': 'oe',
+    '\u00df': 'ss',
+}
+
+export const replaceUmlaut = (string) => {
+    return string.replace(/[\u00fc|\u00e4|\u00f6|\u00df]/g, (a) => umlautMap[a]);
+}
+
+export const accessLevels = {
+    postalService: 0,
+    repackager: 0,
+    wholesaler: 0,
+    dispenser: 1,
+    manufacturer: 2,
+    authority: 3,
+    admin: 4
+}
+
+const getRandomNumberSequence = (length, limit) => {
+    let result = [];
+
+    for (let i = 0; i < length; i++) {
+        let newNumber;
+
+        do {
+            newNumber = Math.round(Math.random() * limit);
+        } while (result.includes(newNumber));
+
+        result.push(newNumber);
+    }
+
+    return result;
+}
+
+const getRandomArrayIndex = (arrayLength) => {
+    return Math.round(Math.random() * (arrayLength - 1));
 }
 
 export default {
     genericAddress,
-    getCountries
+    getCountries,
+    replaceUmlaut,
+    randomBool,
+    getRandomNumberSequence,
+    getRandomArrayIndex
 }

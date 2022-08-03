@@ -1,5 +1,4 @@
-import { countries, continents } from "countries-list"
-import helpers from "./helpers"
+import helpers, { accessLevels } from "./helpers"
 
 const UserGenerator = () => {
     const postalServices = [{
@@ -88,7 +87,6 @@ const UserGenerator = () => {
     }]
     const dispensers = [{
         company: "Charite – Universitätsmedizin Berlin",
-        country: "DE",
         address: {
             street: "Charitéplatz",
             number: "1",
@@ -107,20 +105,10 @@ const UserGenerator = () => {
     const random_repackagers = ["RE:Pack Services Corp.", "Metro Medical Packaging", "Arlas Postage International"]
     const random_dispensers = ["Alios Hospitals International", "Relive Clinics Group", "Brawn Pharmacies Intl.", "Centurion International", "Drike Pharmacy Corp.", "Ex Ferris Medical Group"]
 
-    const accessLevels = {
-        postalService: 0,
-        repackager: 0,
-        wholesaler: 0,
-        dispenser: 1,
-        manufacturer: 2,
-        authority: 3,
-        admin: 4
-    }
-
     const getPostalServices = () => {
-        result = []
+        let result = []
 
-        for (service in postalServices) {
+        for (let service of postalServices) {
 
             let username = service.username
             if (!username) {
@@ -142,12 +130,12 @@ const UserGenerator = () => {
     }
 
     const getGenerics = (companies, continents = []) => {
-        result = []
+        let result = []
 
-        for (let continent in continents) {
+        for (let continent of continents) {
             let countryList = helpers.getCountries(continent);
 
-            for (let item in companies) {
+            for (let item of companies) {
                 let company = `${item} ${continent}`;
                 let address = helpers.genericAddress(countryList[Math.round(Math.random() * (countryList.length - 1))].alpha2, (continent == "EU" ? "EU" : "US"));
 
@@ -163,7 +151,7 @@ const UserGenerator = () => {
     }
 
     const generateWholesalers = (includedContinents = []) => {
-        result = getGenerics(random_wholesalers, includedContinents);
+        let result = getGenerics(random_wholesalers, includedContinents);
 
         return result.map(x => {
             x.type = "wholesaler";
@@ -174,7 +162,7 @@ const UserGenerator = () => {
     }
 
     const generateRepackagers = (includedContinents = []) => {
-        result = getGenerics(random_repackagers, includedContinents);
+        let result = getGenerics(random_repackagers, includedContinents);
 
         return result.map(x => {
             x.type = "repackager";
@@ -185,7 +173,7 @@ const UserGenerator = () => {
     }
 
     const generateManufacturers = (includedContinents = []) => {
-        result = getGenerics(random_manufacturers, includedContinents);
+        let result = getGenerics(random_manufacturers, includedContinents);
 
         result.map(x => {
             x.type = "manufacturer";
@@ -197,8 +185,8 @@ const UserGenerator = () => {
         return result.concat(manufacturers.map(x => enrichPredefinedUser(x)));
     }
 
-    const generateDispensers = () => {
-        result = getGenerics(random_dispensers, includedContinents);
+    const generateDispensers = (includedContinents = []) => {
+        let result = getGenerics(random_dispensers, includedContinents);
 
         result.map(x => {
             x.type = "dispenser";
@@ -212,22 +200,26 @@ const UserGenerator = () => {
 
     const enrichPredefinedUser = (user) => {
         let username = user.username
-        if (!username) username = getUsername(service.company)
+        if (!username) username = getUsername(user.company)
 
-        return {
-            company: user.company,
-            username,
-            password: "$2b$12$eqc6X3z2mvXtEoWhFTMpSupUoQ.Gm9MU2zOZUAzvjVwzjIbSuHEuu",
-            address: user.address
-        }
+        user.username = username;
+        user.password = "$2b$12$eqc6X3z2mvXtEoWhFTMpSupUoQ.Gm9MU2zOZUAzvjVwzjIbSuHEuu";
+
+        return user;
     }
 
     const getUsername = (company_name) => {
-        return company_name.toLowerCase().replace(/[^\w ]/g, "").replaceAll(" ", "_");
+        return company_name.toLowerCase().replaceUmlaute().replace(/[^\w ]/g, "").replaceAll(" ", "_").replaceAll(/(_)\1+/g, "_");
     }
 
-    const generate = () => {
-
+    const generate = (includedContinents = []) => {
+        return {
+            manufacturers: generateManufacturers(includedContinents),
+            postalServices: getPostalServices(),
+            wholesalers: generateWholesalers(includedContinents),
+            repackagers: generateRepackagers(includedContinents),
+            dispensers: generateDispensers(includedContinents)
+        }
     }
 
     return {
