@@ -4,9 +4,15 @@ import initialiser from "./generator/initialiser";
 import fs from "fs";
 import helpers from "./generator/helpers";
 import IncidentGenerator from "./generator/IncidentGenerator";
+import SerialNumberGenerator from "./generator/SerialNumberGenerator";
+import dbImporter from "./db";
+import userSchema from "./schemas/user";
+import productSchema from "./schemas/product";
+import incidentSchema from "./schemas/incident";
 
 initialiser();
-const productNumber = 20;
+const productsPerBatch = 5;
+const batches = 30;
 const continents = ["EU", "NA", "SA", "AS", "AF"];
 
 // Generate Users
@@ -18,44 +24,54 @@ let products = [];
 let incidents = [];
 
 
-for (let i = 0; i < productNumber; i++) {
+for (let i = 0; i < batches; i++) {
     let manufacturer = users.manufacturers[helpers.getRandomArrayIndex(users.manufacturers.length)];
-    let product = productGenerator.generateProduct([manufacturer]);
-    let incidentDef;
-    let dispensers;
+    let batchNumber = SerialNumberGenerator().generate(6);
 
-    if (helpers.randomBool()) {
-        // generate incident
-        incidentDef = { ...IncidentGenerator().getRandomIncidentDefinition(), product: product.serial_number };
+    for (let j = 0; j < productsPerBatch; j++) {
+        let dispenser = users.dispensers[helpers.getRandomArrayIndex(users.dispensers.length)];
+        let product = productGenerator.generateProduct([manufacturer]);
+        let incidentDef;
 
-        if (helpers.randomBool()) dispensers = users.dispensers;
-    } else {
-        dispensers = users.dispensers;
+        if (helpers.randomBool()) {
+            // generate incident
+            incidentDef = { ...IncidentGenerator().getRandomIncidentDefinition(), product: product.serial_number };
+        }
+
+        let generatedChain = productGenerator.generateSupplyChain(manufacturer, users.wholesalers, users.repackagers, dispenser, users.postalServices, incidentDef);
+
+        console.log(generatedChain.chain[generatedChain.chain.length - 1])
+
+        product["supply_chain"] = generatedChain.chain;
+        product["marketed_region"] = dispenser.address.country;
+        product["batch_number"] = batchNumber;
+
+
+        if (generatedChain.incident) {
+            incidents.push(generatedChain.incident);
+            product.reported = true
+            product.used = false
+        } else {
+            product.reported = false
+            product.used = true
+        }
+
+        products.push(product);
     }
-
-    let generatedChain = productGenerator.generateSupplyChain(manufacturer, users.wholesalers, users.repackagers, dispensers, users.postalServices, incidentDef);
-
-    product["supply_chain"] = generatedChain.chain;
-
-    if (generatedChain.incident)
-        incidents.push(generatedChain.incident);
-
-    products.push(product);
 }
 
-fs.writeFileSync("./output/users.json", JSON.stringify(users), err => console.log(err));
-fs.writeFileSync("./output/products.json", JSON.stringify(products), err => console.log(err));
-fs.writeFileSync("./output/incidents.json", JSON.stringify(incidents), err => console.log(err));
+let userArr = [];
 
-/*
-let productGenerator = new ProductGenerator()
-
-productGenerator.generate();
-const users = UserGenerator().generate(["EU"]);
-
-const dateGenerator = DateGenerator();
-for (let i = 0; i < 5; i++) {
-    console.log(dateGenerator.getNextDate());
+for (let key in users) {
+    userArr = userArr.concat(users[key]);
 }
 
-*/
+dbImporter.bulkInsert(userArr, userSchema);
+dbImporter.bulkInsert(products, productSchema);
+dbImporter.bulkInsert(incidents, incidentSchema);
+
+//fs.writeFileSync("./output/users.json", JSON.stringify(users), err => console.log(err));
+//fs.writeFileSync("./output/products.json", JSON.stringify(products), err => console.log(err));
+//fs.writeFileSync("./output/incidents.json", JSON.stringify(incidents), err => console.log(err));
+
+console.log("done")

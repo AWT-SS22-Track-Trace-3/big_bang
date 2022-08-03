@@ -1,6 +1,7 @@
 {
     "type": "module",
     "dependencies": {
-        "countries-list": "^2.6.1"
+        "countries-list": "^2.6.1",
+        "mongoose": "^6.5.0"
     }
 }

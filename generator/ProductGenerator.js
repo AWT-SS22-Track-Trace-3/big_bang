@@ -47,14 +47,14 @@ class ProductGenerator {
         return date
     }
 
-    generateSupplyChain(manufacturer, wholesalers = [], repackagers = [], dispensers = [], shipmentServices = [], incident) {
+    generateSupplyChain(manufacturer, wholesalers = [], repackagers = [], dispenser, shipmentServices = [], incident) {
         let numberOfOwners = Math.ceil(Math.random() * 3) + 1;
 
         let intermediateOwners = wholesalers.concat(repackagers);
         let chainOwners = helpers.getRandomNumberSequence(numberOfOwners, intermediateOwners.length - 1).map(x => intermediateOwners[x]);
 
-        if (dispensers.length > 0)
-            chainOwners.push(dispensers[helpers.getRandomArrayIndex(dispensers.length)]);
+        if (!incident || (helpers.randomBool() && incident))
+            chainOwners.push(dispenser);
 
         const builder = SupplyChainBuilder();
         const dateGenerator = DateGenerator();
@@ -88,12 +88,16 @@ class ProductGenerator {
                 builder.addOwnership(owner)
 
         }
+        console.log(!incident, chainOwners[chainOwners.length - 1].type === "dispenser")
 
-        if (!incident && chainOwners[chainOwners.length - 1].type === "dispenser")
+        if (!incident && chainOwners[chainOwners.length - 1].type === "dispenser") {
+
+            console.log("adding termination");
             builder.addTermination({
                 username: chainOwners[chainOwners.length - 1].username,
                 transaction_date: dateGenerator.getNextDate()
             });
+        }
         else
             builder.addIncident(incident)
 

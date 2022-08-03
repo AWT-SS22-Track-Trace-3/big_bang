@@ -198,6 +198,15 @@ const UserGenerator = () => {
         return result.concat(dispensers.map(x => enrichPredefinedUser(x)));
     }
 
+    const getAdmin = () => {
+        return {
+            username: "admin",
+            password: "$2b$12$eqc6X3z2mvXtEoWhFTMpSupUoQ.Gm9MU2zOZUAzvjVwzjIbSuHEuu",
+            type: "admin",
+            access_lvl: 4
+        }
+    }
+
     const enrichPredefinedUser = (user) => {
         let username = user.username
         if (!username) username = getUsername(user.company)
@@ -218,7 +227,8 @@ const UserGenerator = () => {
             postalServices: getPostalServices(),
             wholesalers: generateWholesalers(includedContinents),
             repackagers: generateRepackagers(includedContinents),
-            dispensers: generateDispensers(includedContinents)
+            dispensers: generateDispensers(includedContinents),
+            admin: getAdmin()
         }
     }
 
