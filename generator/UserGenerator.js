@@ -156,9 +156,9 @@ const UserGenerator = () => {
         for (let continent of continents) {
             for (let company of companies) {
                 let countryList = helpers.getCountries(continent);
-                countryList = helpers.getRandomNumberSequence(5, countryList.length).map(x => countryList[x]);
+                countryList = helpers.getRandomNumberSequence(5, countryList.length - 1).map(x => countryList[x]);
 
-                console.log(countryList)
+                //console.log(countryList)
 
                 for (let country of countryList) {
                     let companyName = `${company} ${country.alpha2}`;
@@ -167,7 +167,7 @@ const UserGenerator = () => {
                     result.push({
                         company: companyName,
                         address,
-                        username: getUsername(company),
+                        username: getUsername(companyName),
                         password: "$2b$12$eqc6X3z2mvXtEoWhFTMpSupUoQ.Gm9MU2zOZUAzvjVwzjIbSuHEuu"
                     })
                 }

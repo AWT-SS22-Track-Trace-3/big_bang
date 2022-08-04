@@ -26,7 +26,7 @@ const getCountries = (continent = undefined) => {
     } else {
         country_list = country_keys.map(x => {
             let country = countries[x];
-            country.alpha2 = x;
+            country["alpha2"] = x;
 
             return country;
         });

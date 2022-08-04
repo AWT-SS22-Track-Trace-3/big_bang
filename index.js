@@ -6,14 +6,11 @@ import helpers from "./generator/helpers";
 import IncidentGenerator from "./generator/IncidentGenerator";
 import SerialNumberGenerator from "./generator/SerialNumberGenerator";
 import dbImporter from "./db";
-import userSchema from "./schemas/user";
-import productSchema from "./schemas/product";
-import incidentSchema from "./schemas/incident";
 
 initialiser();
 await dbImporter.clear();
-const productsPerBatch = 10;
-const batches = 50;
+const productsPerBatch = 5;
+const batches = 100;
 const continents = ["EU", "NA", "AS"];
 
 // Generate Users
@@ -76,3 +73,5 @@ await dbImporter.bulkInsertIncidents(incidents);
 //fs.writeFileSync("./output/incidents.json", JSON.stringify(incidents), err => console.log(err));
 
 console.log("done")
+
+dbImporter.close();

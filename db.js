@@ -24,14 +24,20 @@ const DBImporter = () => {
     const clear = async () => {
         await users.deleteMany({});
         await products.deleteMany({});
-        await incidents.deleteMany({});
+        await inc
+        idents.deleteMany({});
+    }
+
+    const close = () => {
+        client.close();
     }
 
     return {
         bulkInsertUsers,
         bulkInsertIncidents,
         bulkInsertProducts,
-        clear
+        clear,
+        close
     }
 }
 
