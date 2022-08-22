@@ -1,4 +1,4 @@
-import SerialNumberGenerator from "./SerialNumberGenerator";
+import serialNumberGenerator from "./SerialNumberGenerator";
 
 const SupplyChainBuilder = () => {
     let supply_chain = []
@@ -46,7 +46,7 @@ const SupplyChainBuilder = () => {
             id: nextIndex,
             type: "shipment",
             shipment_method: "air",
-            tracking_number: SerialNumberGenerator().generate(12),
+            tracking_number: serialNumberGenerator.generate(12),
             date_shipped: owner.shipment_date,
             date_delivered: owner.delivery_date,
             owner: owner.username

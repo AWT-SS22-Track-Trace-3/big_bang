@@ -2,15 +2,7 @@ const SerialNumberGenerator = () => {
     let instance;
     let offset = 0;
 
-    function createInstance() {
-        return SerialNumberGenerator();
-    }
-
     return {
-        getInstance: () => {
-            if (!instance) instance = createInstance();
-            return instance;
-        },
         generate: (length) => {
             const offset_size = `${offset}`.length;
             const random_size = length - offset_size;
@@ -24,4 +16,5 @@ const SerialNumberGenerator = () => {
     }
 }
 
-export default SerialNumberGenerator;
+const serialNumberGenerator = SerialNumberGenerator();
+export default serialNumberGenerator;

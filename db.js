@@ -10,26 +10,37 @@ const DBImporter = () => {
     const incidents = client.model(incidentSchema.name, incidentSchema.schema);
 
     const bulkInsertUsers = async (objects = []) => {
-        await users.insertMany(objects, err => console.log(err));
+        try {
+            await users.insertMany(objects, err => console.log(err));
+        } catch (err) {
+            console.log("There was an error running mongo bulk inserts. Please import files manually from /output.")
+        }
     }
 
     const bulkInsertProducts = async (objects = []) => {
-        await products.insertMany(objects, err => console.log(err));
+        try {
+            await products.insertMany(objects, err => console.log(err));
+        } catch (err) {
+            console.log("There was an error running mongo bulk inserts. Please import files manually from /output.")
+        }
     }
 
     const bulkInsertIncidents = async (objects = []) => {
-        await incidents.insertMany(objects, err => console.log(err));
+        try {
+            await incidents.insertMany(objects, err => console.log(err));
+        } catch (err) {
+            console.log("There was an error running mongo bulk inserts. Please import files manually from /output.")
+        }
     }
 
     const clear = async () => {
         await users.deleteMany({});
         await products.deleteMany({});
-        await inc
-        idents.deleteMany({});
+        await incidents.deleteMany({});
     }
 
-    const close = () => {
-        client.close();
+    const close = async () => {
+        await client.close();
     }
 
     return {

@@ -2,7 +2,7 @@ import fs from "fs";
 import DateGenerator from "./DateGenerator";
 import helpers from "./helpers";
 import IncidentGenerator from "./IncidentGenerator";
-import SerialNumberGenerator from "./SerialNumberGenerator";
+import serialNumberGenerator from "./SerialNumberGenerator";
 import SupplyChainBuilder from "./SupplyChainBuilder";
 
 class ProductGenerator {
@@ -31,13 +31,11 @@ class ProductGenerator {
     }
 
     getSerialNumber() {
-        let numberGenerator = SerialNumberGenerator().getInstance();
-        return numberGenerator.generate(12);
+        return serialNumberGenerator.generate(12);
     }
 
     getDrugCode() {
-        let numberGenerator = SerialNumberGenerator().getInstance();
-        return numberGenerator.generate(6);
+        return serialNumberGenerator.generate(6);
     }
 
     getExpiryDate() {
@@ -104,15 +102,33 @@ class ProductGenerator {
         };
     }
 
-    generateProduct(manufacturers = []) {
+    generateProduct(manufacturers = [], include_serial_number = true) {
+        let strength = this.getProductStrength();
+        let manufacturer_username = manufacturers[0].username;
+        let manufacturer_name = manufacturers[0].company;
+        let serial_number = include_serial_number ? this.getSerialNumber() : null;
+
+        return {
+            drug_code: this.getDrugCode(),
+            serial_number,
+            expiry_date: this.getExpiryDate(),
+            form: this.getProductForm(),
+            strength,
+            pack_size: this.getProductPackSize(),
+            name: this.getProductName(manufacturer_name, strength),
+            manufacturers: [
+                manufacturer_username
+            ]
+        }
+    }
+
+    generateTemplate(manufacturers = []) {
         let strength = this.getProductStrength();
         let manufacturer_username = manufacturers[0].username;
         let manufacturer_name = manufacturers[0].company;
 
         return {
             drug_code: this.getDrugCode(),
-            serial_number: this.getSerialNumber(),
-            expiry_date: this.getExpiryDate(),
             form: this.getProductForm(),
             strength,
             pack_size: this.getProductPackSize(),
