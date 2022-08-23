@@ -4,43 +4,61 @@ import productSchema from "./schemas/product";
 import incidentSchema from "./schemas/incident";
 
 const DBImporter = () => {
-    const client = mongoose.createConnection('mongodb://root:SuperSecret@localhost:27017/track-trace');
-    const users = client.model(userSchema.name, userSchema.schema);
-    const products = client.model(productSchema.name, productSchema.schema);
-    const incidents = client.model(incidentSchema.name, incidentSchema.schema);
+    let users;
+    let products;
+    let incidents;
 
-    const bulkInsertUsers = async (objects = []) => {
-        try {
-            await users.insertMany(objects, err => console.log(err));
-        } catch (err) {
-            console.log("There was an error running mongo bulk inserts. Please import files manually from /output.")
-        }
+    const connect = () => {
+        return mongoose.connect('mongodb://root:SuperSecret@localhost:27017/track-trace', {
+            connectTimeoutMS: 3000,
+            serverSelectionTimeoutMS: 3000
+        }).then(
+            () => {
+                users = mongoose.connection.model(userSchema.name, userSchema.schema);
+                products = mongoose.connection.model(productSchema.name, productSchema.schema);
+                incidents = mongoose.connection.model(incidentSchema.name, incidentSchema.schema);
+
+                return new Promise((resolve) => resolve("Successfully connected to database."));
+            },
+            (err) => {
+                return new Promise((resolve, reject) => reject("Failed to connect to database. Please import files manually from /output."));
+            }
+        );
     }
 
-    const bulkInsertProducts = async (objects = []) => {
-        try {
-            await products.insertMany(objects, err => console.log(err));
-        } catch (err) {
-            console.log("There was an error running mongo bulk inserts. Please import files manually from /output.")
-        }
+    const bulkInsertUsers = (objects = []) => {
+        return users.insertMany(objects);
     }
 
-    const bulkInsertIncidents = async (objects = []) => {
-        try {
-            await incidents.insertMany(objects, err => console.log(err));
-        } catch (err) {
-            console.log("There was an error running mongo bulk inserts. Please import files manually from /output.")
-        }
+    const bulkInsertProducts = (objects = []) => {
+        return products.insertMany(objects);
     }
 
-    const clear = async () => {
-        await users.deleteMany({});
-        await products.deleteMany({});
-        await incidents.deleteMany({});
+    const bulkInsertIncidents = (objects = []) => {
+        return incidents.insertMany(objects);
     }
 
-    const close = async () => {
-        await client.close();
+    const deleteUsers = () => {
+        return users.deleteMany({})
+    }
+
+    const deleteIncidents = () => {
+        return incidents.deleteMany({})
+    }
+
+    const deleteProducts = () => {
+        return products.deleteMany({})
+    }
+
+    const clear = () => {
+        return deleteUsers()
+            .then(() => deleteIncidents())
+            .then(() => deleteProducts())
+
+    }
+
+    const close = () => {
+        return mongoose.connection.close();
     }
 
     return {
@@ -48,7 +66,8 @@ const DBImporter = () => {
         bulkInsertIncidents,
         bulkInsertProducts,
         clear,
-        close
+        close,
+        connect
     }
 }
 

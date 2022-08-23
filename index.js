@@ -8,7 +8,7 @@ import serialNumberGenerator from "./generator/SerialNumberGenerator";
 import dbImporter from "./db";
 
 initialiser();
-await dbImporter.clear();
+
 const productsPerBatch = 5;
 const batches = 100;
 const continents = ["EU", "NA", "AS", "AF"];
@@ -67,12 +67,6 @@ for (let key in users) {
     userArr = userArr.concat(users[key]);
 }
 
-//console.log(products.length);
-
-dbImporter.bulkInsertUsers(userArr);
-dbImporter.bulkInsertProducts(products);
-dbImporter.bulkInsertIncidents(incidents);
-
 Date.prototype.toJSON = function () {
     return { "$date": this.toISOString() }
 }
@@ -81,6 +75,19 @@ await fs.writeFileSync("./output/users.json", JSON.stringify(userArr), err => co
 await fs.writeFileSync("./output/products.json", JSON.stringify(products), err => console.log(err));
 await fs.writeFileSync("./output/incidents.json", JSON.stringify(incidents), err => console.log(err));
 
-console.log("Done, closing connection.")
+console.log("-------------------------------");
+console.log(`${userArr.length} users`);
+console.log(`${incidents.length} incidents`);
+console.log(`${products.length} products`);
+console.log("-------------------------------");
 
-await dbImporter.close();
+dbImporter.connect()
+    .then((results) => console.log("Database connection established. Clearing database and pushing generated items."))
+    .then(() => dbImporter.clear())
+    .then(() => dbImporter.bulkInsertUsers(userArr))
+    .then(() => dbImporter.bulkInsertProducts(products))
+    .then(() => dbImporter.bulkInsertIncidents(incidents))
+    .then(() => dbImporter.close())
+    .catch(err => {
+        console.log(err);
+    });
